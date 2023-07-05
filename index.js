@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const booksCollection = client.db('BooksDb').collection('IslamicBooks');
 
@@ -58,6 +58,22 @@ async function run() {
       } catch (error) {
         console.error('Error adding book:', error);
         res.status(500).send('Error adding book');
+      }
+    });
+
+    app.put('/books/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const updatedBookData = req.body;
+        const updateResult = await booksCollection.updateOne(query, {
+          $set: updatedBookData,
+        });
+        console.log('Book updated:', updateResult);
+        res.send(updateResult);
+      } catch (error) {
+        console.error('Error updating book:', error);
+        res.status(500).send('Error updating book');
       }
     });
 
