@@ -65,15 +65,21 @@ async function run() {
       try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
-        const updatedBookData = req.body;
+        const updatedBookData = { ...req.body }; // Create a copy of the request body
+        delete updatedBookData._id; // Exclude the _id field from the update operation
+
         const updateResult = await booksCollection.updateOne(query, {
           $set: updatedBookData,
         });
-        console.log('Book updated:', updateResult);
-        res.send(updateResult);
+
+        if (updateResult.matchedCount === 1) {
+          res.send({ success: true, message: 'Book updated successfully' });
+        } else {
+          res.status(404).send({ success: false, message: 'Book not found' });
+        }
       } catch (error) {
         console.error('Error updating book:', error);
-        res.status(500).send('Error updating book');
+        res.status(500).send({ success: false, error: 'Error updating book' });
       }
     });
 
